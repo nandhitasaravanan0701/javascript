@@ -1,0 +1,27 @@
+/**
+ * @param {Function} fn
+ * @return {Function}
+ */
+function memoize(fn) {
+    const cache = new Map();
+    const RESULT = Symbol('result');
+
+    return function(...args) {
+        let current = cache;
+
+        // Navigate through the Map tree for each argument
+        for (const arg of args) {
+            if (!current.has(arg)) {
+                current.set(arg, new Map());
+            }
+            current = current.get(arg);
+        }
+
+        // Check if the result for this specific set of arguments exists
+        if (!current.has(RESULT)) {
+            current.set(RESULT, fn(...args));
+        }
+
+        return current.get(RESULT);
+    }
+}
