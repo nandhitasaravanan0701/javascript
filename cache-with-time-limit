@@ -1,0 +1,44 @@
+class TimeLimitedCache {
+    constructor() {
+        this.cache = new Map(); // Stores {key: {value, timeoutId}}
+    }
+
+    /** 
+     * @param {number} key
+     * @param {number} value
+     * @param {number} duration time until expiration in ms
+     * @return {boolean} if un-expired key already existed
+     */
+    set(key, value, duration) {
+        const exists = this.cache.has(key);
+
+        // If key exists, clear the old timeout to prevent premature deletion
+        if (exists) {
+            clearTimeout(this.cache.get(key).timeoutId);
+        }
+
+        // Set a new timeout to delete the key after the duration
+        const timeoutId = setTimeout(() => {
+            this.cache.delete(key);
+        }, duration);
+
+        this.cache.set(key, { value, timeoutId });
+
+        return exists;
+    }
+
+    /** 
+     * @param {number} key
+     * @return {number} value associated with key
+     */
+    get(key) {
+        return this.cache.has(key) ? this.cache.get(key).value : -1;
+    }
+
+    /** 
+     * @return {number} count of non-expired keys
+     */
+    count() {
+        return this.cache.size;
+    }
+}
